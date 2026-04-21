@@ -1,0 +1,14 @@
+# Step 3: Allow intra-namespace traffic (pod-to-pod within the same namespace).
+# This ensures component-to-component connections still work.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-intra-namespace-egress
+  namespace: dp-default-default-development-f8e58905
+spec:
+  podSelector: {}  # Applies to ALL pods
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector: {}  # Any pod in the same namespace

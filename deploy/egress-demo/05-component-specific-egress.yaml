@@ -1,0 +1,30 @@
+# Step 5: Component-specific egress rule (simulates an approved EgressRequest).
+# This allows ONLY the http-egress-proxy component to reach an additional destination
+# that is not in the platform-wide allowlist.
+#
+# Scenario: Developer requested access to a specific API, platform engineer approved it
+# only for this component.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: approved-egress-http-egress-proxy
+  namespace: dp-default-default-development-f8e58905
+spec:
+  podSelector:
+    matchLabels:
+      openchoreo.dev/component: http-egress-proxy
+  policyTypes:
+    - Egress
+  egress:
+    # Allow this specific component to reach an additional external service
+    # (e.g., a partner API on a non-standard port)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - port: 8443
+          protocol: TCP

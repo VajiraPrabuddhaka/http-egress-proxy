@@ -1,0 +1,37 @@
+# Step 4: Platform engineer allowlist - permit specific external destinations.
+# This demonstrates the "I allow these specific domains/IPs" scenario.
+#
+# NOTE: Standard K8s NetworkPolicy does NOT support FQDN-based rules.
+# This uses CIDR-based rules. For FQDN support, use CiliumNetworkPolicy (see 04b).
+#
+# Allows:
+#   - httpbin.org (use `dig httpbin.org` to get current IPs, or use 0.0.0.0/0 with port restriction)
+#   - mocky.io
+#   - jsonplaceholder.typicode.com
+#
+# Since IPs for cloud services change, we allow HTTPS (443) to any IP here as a demo.
+# In production, you would use CiliumNetworkPolicy with toFQDNs for proper FQDN filtering.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: platform-egress-allowlist
+  namespace: dp-default-default-development-f8e58905
+spec:
+  podSelector: {}  # Applies to ALL pods (platform-wide allowlist)
+  policyTypes:
+    - Egress
+  egress:
+    # Allow HTTPS to any external IP (platform-approved ports only)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            # Exclude cluster-internal ranges (these are handled by other rules)
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - port: 443
+          protocol: TCP
+        - port: 80
+          protocol: TCP

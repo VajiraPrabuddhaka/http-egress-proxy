@@ -1,0 +1,72 @@
+apiVersion: openchoreo.dev/v1alpha1
+kind: Component
+metadata:
+  name: http-egress-proxy
+  namespace: default
+spec:
+  owner:
+    projectName: default
+  autoDeploy: true
+  componentType:
+    kind: ClusterComponentType
+    name: deployment/service
+  workflow:
+    kind: ClusterWorkflow
+    name: dockerfile-builder
+    parameters:
+      repository:
+        url: "https://github.com/VajiraPrabuddhaka/http-egress-proxy"
+        revision:
+          branch: "main"
+        appPath: "/"
+      docker:
+        context: "/"
+        filePath: "/Dockerfile"
+
+---
+
+apiVersion: openchoreo.dev/v1alpha1
+kind: WorkflowRun
+metadata:
+  name: http-egress-proxy-build-01
+  namespace: default
+  labels:
+    openchoreo.dev/project: "default"
+    openchoreo.dev/component: "http-egress-proxy"
+spec:
+  workflow:
+    kind: ClusterWorkflow
+    name: dockerfile-builder
+    parameters:
+      repository:
+        url: "https://github.com/VajiraPrabuddhaka/http-egress-proxy"
+        revision:
+          branch: "main"
+        appPath: "/"
+      docker:
+        context: "/"
+        filePath: "/Dockerfile"
+
+---
+
+apiVersion: openchoreo.dev/v1alpha1
+kind: Workload
+metadata:
+  name: http-egress-proxy-workload
+  namespace: default
+spec:
+  owner:
+    projectName: default
+    componentName: http-egress-proxy
+  endpoints:
+    proxy-api:
+      type: HTTP
+      port: 8080
+      visibility: [external]
+  container:
+    image: "http-egress-proxy:latest"
+    command:
+      - /http-egress-proxy
+    env:
+      - key: PORT
+        value: "8080"

@@ -1,0 +1,11 @@
+apiVersion: openchoreo.dev/v1alpha1
+
+metadata:
+  name: http-egress-proxy
+
+endpoints:
+  - name: proxy-api
+    visibility:
+      - external
+    port: 8080
+    type: HTTP

@@ -1,0 +1,25 @@
+# Step 2: Allow DNS resolution for all pods.
+# Without DNS, nothing works (FQDN resolution fails).
+# This is a baseline rule that platform engineers always include.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns-egress
+  namespace: dp-default-default-development-f8e58905
+spec:
+  podSelector: {}  # Applies to ALL pods
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP

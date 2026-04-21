@@ -1,0 +1,13 @@
+# Step 1: Default deny ALL egress traffic for all pods in the namespace.
+# This simulates the platform engineer saying "deny all outbound by default".
+# After applying this, the http-egress-proxy will NOT be able to reach any external endpoint.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-egress
+  namespace: dp-default-default-development-f8e58905
+spec:
+  podSelector: {}  # Applies to ALL pods in the namespace
+  policyTypes:
+    - Egress
+  # No egress rules = deny all outbound traffic

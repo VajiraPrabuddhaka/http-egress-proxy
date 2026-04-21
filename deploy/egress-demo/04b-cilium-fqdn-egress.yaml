@@ -1,0 +1,43 @@
+# Step 4b (Alternative): CiliumNetworkPolicy with FQDN-based egress rules.
+# This is the PROPER way to do domain-based egress control.
+# Requires Cilium CNI to be installed in the cluster.
+#
+# This policy ONLY allows egress to specific FQDNs - much more precise than CIDR-based rules.
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: platform-egress-fqdn-allowlist
+  namespace: dp-default-default-development-f8e58905
+spec:
+  endpointSelector: {}  # Applies to ALL pods
+  egress:
+    # Allow DNS (required for FQDN resolution to work)
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: UDP
+            - port: "53"
+              protocol: TCP
+
+    # Platform allowlist: specific FQDNs only
+    - toFQDNs:
+        - matchName: "httpbin.org"
+        - matchName: "run.mocky.io"
+        - matchName: "jsonplaceholder.typicode.com"
+        - matchPattern: "*.github.com"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "80"
+              protocol: TCP
+
+    # Allow intra-namespace traffic
+    - toEndpoints:
+        - matchLabels:
+            openchoreo.dev/namespace: default
+            openchoreo.dev/environment: development
