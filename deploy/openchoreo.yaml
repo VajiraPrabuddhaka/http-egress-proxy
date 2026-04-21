@@ -15,7 +15,7 @@ spec:
     name: dockerfile-builder
     parameters:
       repository:
-        url: "https://github.com/VajiraPrabuddhaka/http-egress-policy"
+        url: "https://github.com/VajiraPrabuddhaka/http-egress-proxy"
         revision:
           branch: "main"
         appPath: "/"
@@ -39,7 +39,7 @@ spec:
     name: dockerfile-builder
     parameters:
       repository:
-        url: "https://github.com/VajiraPrabuddhaka/http-egress-policy"
+        url: "https://github.com/VajiraPrabuddhaka/http-egress-proxy"
         revision:
           branch: "main"
         appPath: "/"
